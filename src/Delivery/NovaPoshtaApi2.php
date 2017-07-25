@@ -860,24 +860,22 @@ class NovaPoshtaApi2
 	protected function checkInternetDocumentRecipient(array & $counterparty)
 	{
 		// Check required fields
-		if (!$counterparty['FirstName'])
+		if (empty($counterparty['FirstName']))
 			throw new \Exception('FirstName is required filed for recipient');
 		// MiddleName realy is not required field, but manual says otherwise
 		// if ( ! $counterparty['MiddleName'])
 		// throw new \Exception('MiddleName is required filed for sender and recipient');
-		if (!$counterparty['LastName'])
+		if (empty($counterparty['LastName']))
 			throw new \Exception('LastName is required filed for recipient');
-		if (!$counterparty['Phone'])
+		if (empty($counterparty['Phone']))
 			throw new \Exception('Phone is required filed for recipient');
-		if (!isset($counterparty['City']) and !isset($counterparty['CityRef']))
+		if (empty($counterparty['City']) and empty($counterparty['CityRef']))
 			throw new \Exception('City is required filed for recipient');
-		if (!($counterparty['Region'] OR $counterparty['CityRef']))
+		if (!(empty($counterparty['Region']) OR empty($counterparty['CityRef'])))
 			throw new \Exception('Region is required filed for recipient');
 
 		// Set defaults
-		if (!$counterparty['CounterpartyType']) {
-			$counterparty['CounterpartyType'] = 'PrivatePerson';
-		}
+		$counterparty['CounterpartyType'] = empty($counterparty['CounterpartyType']) ? $counterparty['CounterpartyType'] : 'PrivatePerson';
 	}
 
 	/**
@@ -888,19 +886,19 @@ class NovaPoshtaApi2
 	 */
 	protected function checkInternetDocumentParams(array & $params)
 	{
-		if (!$params['Description'])
+		if (empty($params['Description']))
 			throw new \Exception('Description is required filed for new Internet document');
-		if (!$params['Weight'])
+		if (empty($params['Weight']))
 			throw new \Exception('Weight is required filed for new Internet document');
-		if (!$params['Cost'])
+		if (empty($params['Cost']))
 			throw new \Exception('Cost is required filed for new Internet document');
-		(!$params['DateTime']) AND $params['DateTime'] = date('d.m.Y');
-		(!$params['ServiceType']) AND $params['ServiceType'] = 'WarehouseWarehouse';
-		(!$params['PaymentMethod']) AND $params['PaymentMethod'] = 'Cash';
-		(!$params['PayerType']) AND $params['PayerType'] = 'Recipient';
-		(!$params['SeatsAmount']) AND $params['SeatsAmount'] = '1';
-		(!$params['CargoType']) AND $params['CargoType'] = 'Cargo';
-		(!$params['VolumeGeneral']) AND $params['VolumeGeneral'] = '0.0004';
+		(empty($params['DateTime'])) AND $params['DateTime'] = date('d.m.Y');
+		(empty($params['ServiceType'])) AND $params['ServiceType'] = 'WarehouseWarehouse';
+		(empty($params['PaymentMethod'])) AND $params['PaymentMethod'] = 'Cash';
+		(empty($params['PayerType'])) AND $params['PayerType'] = 'Recipient';
+		(empty($params['SeatsAmount'])) AND $params['SeatsAmount'] = '1';
+		(empty($params['CargoType'])) AND $params['CargoType'] = 'Cargo';
+		(empty($params['VolumeGeneral'])) AND $params['VolumeGeneral'] = '0.0004';
 	}
 
 	/**
@@ -930,19 +928,19 @@ class NovaPoshtaApi2
 		// Check for required params and set defaults
 		$this->checkInternetDocumentRecipient($recipient);
 		$this->checkInternetDocumentParams($params);
-		if (!$sender['CitySender']) {
+		if (empty($sender['CitySender'])) {
 			$senderCity = $this->getCity($sender['City'], $sender['Region']);
 			$sender['CitySender'] = $senderCity['data'][0]['Ref'];
 		}
 		$sender['CityRef'] = $sender['CitySender'];
-		if (!$sender['SenderAddress'] AND $sender['CitySender'] AND $sender['Warehouse']) {
+		if (empty($sender['SenderAddress']) AND !empty($sender['CitySender']) AND !empty($sender['Warehouse'])) {
 			$senderWarehouse = $this->getWarehouse($sender['CitySender'], $sender['Warehouse']);
 			$sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
 		}
-		if (!$sender['Sender']) {
+		if (empty($sender['Sender'])) {
 			$sender['CounterpartyProperty'] = 'Sender';
 			// Set full name to Description if is not set
-			if (!$sender['Description']) {
+			if (empty($sender['Description'])) {
 				$sender['Description'] = $sender['LastName'] . ' ' . $sender['FirstName'] . ' ' . $sender['MiddleName'];
 			}
 			// Check for existing sender
@@ -960,7 +958,7 @@ class NovaPoshtaApi2
 		// Prepare recipient data
 		$recipient['CounterpartyProperty'] = 'Recipient';
 		$recipient['RecipientsPhone'] = $recipient['Phone'];
-		if (!$recipient['CityRecipient']) {
+		if (empty($recipient['CityRecipient'])) {
 			$recipientCity = $this->getCity($recipient['City'], $recipient['Region']);
 			$recipient['CityRecipient'] = $recipientCity['data'][0]['Ref'];
 		}
@@ -973,13 +971,13 @@ class NovaPoshtaApi2
 						$recipient["RecipientHouse"]: "",
 						$recipient["RecipientFlat"]: "",*/
 		} else {
-			if (!$recipient['RecipientAddress']) {
+			if (empty($recipient['RecipientAddress'])) {
 				$recipientWarehouse = $this->getWarehouse($recipient['CityRecipient'], $recipient['Warehouse']);
 				$recipient['RecipientAddress'] = $recipientWarehouse['data'][0]['Ref'];
 			}
 		}
 
-		if (!$recipient['Recipient']) {
+		if (empty($recipient['Recipient'])) {
 			$recipientCounterparty = $this->model('Counterparty')->save($recipient);
 			$recipient['Recipient'] = $recipientCounterparty['data'][0]['Ref'];
 			$recipient['ContactRecipient'] = $recipientCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
